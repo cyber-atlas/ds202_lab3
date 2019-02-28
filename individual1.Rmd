@@ -98,3 +98,4 @@ ggplot(data = HAPPY, aes(x = HAPPY)) +
 ```
 
 
+I learned that people are happiest when they are at average financial status. Not when rich
