@@ -45,9 +45,9 @@ HAPPY <- HAPPY %>%
 
 #MARITAL column has no obvious order
 #sort by average age of aggregated/grouped MARITAL value
-subset <- aggregate(AGE ~ MARITAL, data = HAPPY, mean) %>%
+subset_marital_by_age <- aggregate(AGE ~ MARITAL, data = HAPPY, mean) %>%
   arrange(AGE)
-HAPPY <- mutate(HAPPY, MARITAL = factor(MARITAL, as.vector(subset$MARITAL)))
+HAPPY <- mutate(HAPPY, MARITAL = factor(MARITAL, as.vector(subset_marital_by_age$MARITAL)))
 #sapply(HAPPY, levels)
 ```
 
@@ -83,35 +83,43 @@ age_subset <- HAPPY$AGE
 age_subset <- age_subset[!is.na(age_subset)]
 bw <- 2 * IQR(age_subset) / length(age_subset)^(1/3) #identical binwidth calculation used previously
 plot1a <- ggplot(HAPPY, aes(x=AGE)) + 
-  geom_histogram(binwidth = bw*2) + xlab("AGE")
-
-#WTSSALL distribution
-plot2a <- ggplot(HAPPY, aes(x=WTSSALL)) + 
-  geom_density() + xlab("WTSSALL")
+  geom_histogram(binwidth = bw*2, color="black", fill="white") + xlab("AGE") +
+  theme(legend.position = "none") +
+  scale_x_continuous(breaks=seq(15, 100, 5))
 
 print(plot1a)
+```
+Age distribution is skewed right. The youngest age bin, containing individuals just over 15 years of age, has the lowest count.  
+
+```{r}
+#WTSSALL distribution
+plot2a <- ggplot(HAPPY, aes(x=WTSSALL)) + 
+  geom_density() + xlab("WTSSALL") + scale_y_sqrt() 
+
 print(plot2a)
 ```
+
 
 2. Investigate the relationship between happiness and three other variables in the data.
 ```{r}
 #Marital status and happiness
 subset_happy_marriage <- HAPPY %>% select(HAPPY, MARITAL) %>% drop_na() 
 plot1b <- ggplot(subset_happy_marriage, aes(x=MARITAL, fill=HAPPY)) + 
-  geom_bar(position = "dodge") + ylab("Proportion") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  geom_bar() + ylab("Count") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
+  facet_wrap(~HAPPY) + 
+  scale_fill_manual(values = c("skyblue", "royalblue", "navy"), name = "Happiness")
 
 #Age and happiness
 subset_happy_age <- HAPPY %>% select(HAPPY, AGE) %>% drop_na() #%>% filter(AGE <= 30)
 plot2b <- ggplot(subset_happy_age, aes(x=HAPPY, y=AGE)) + 
-  geom_boxplot()
+  geom_point(alpha=0.05, position="jitter", aes(color=HAPPY), size=1) + geom_boxplot(alpha=0) +
+  theme(legend.position = "none")
 
 #Education and happiness
 subset_happy_education <- HAPPY %>% select(HAPPY, DEGREE) %>% drop_na() 
 plot3b <- ggplot(subset_happy_education, aes(x=DEGREE, fill=HAPPY)) + 
-  geom_bar(position = "fill") + ylab("Proportion") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+  geom_bar(position = "fill") + ylab("Proportion") + coord_flip()
 
 print(plot1b)
 print(plot2b)
