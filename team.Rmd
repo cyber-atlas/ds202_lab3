@@ -147,6 +147,12 @@ plot3b <- ggplot(subset_happy_education, aes(x=DEGREE, fill=HAPPY)) +
   geom_bar(position = "fill") + ylab("Proportion") + coord_flip()
 
 print(plot3b)
+
+#Happiness and welath
+ggplot(data = HAPPY, aes(x = HAPPY)) +
+  geom_bar(aes(fill=SEX)) + 
+  facet_wrap(HAPPY$FINRELA)
+
 ```
 <br />
 There is a direct, positive relationship between happiness and amount of education. Happiness is greatest for most educated individuals.
@@ -157,4 +163,7 @@ There is a direct, positive relationship between happiness and amount of educati
 
 The happiness survey focused on an expected age distribution, although there was a minimum age restriction. Ages sampled were most frequent at adult prime (around age 30), and decreased in correspondence to human mortality. Happiness corresponded marginally with age. 
 
+
 The majority of individuals sampled were identified as "pretty happy". People are most happy when either single or married. There is a direct, positive relationship between happiness and amount of education.
+
+People are also most happy when they are average financially. It was interesting seeing those most people far above average where not happier on average. It was also interesting note that men were happier than women when they are above average financially.
