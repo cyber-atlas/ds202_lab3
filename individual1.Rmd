@@ -5,8 +5,38 @@ date: "February 19, 2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-data(happy, package="productplots")
-head(happy)
+1)
+```{r}
+#data(happy, package="productplots")
+#head(happy)
+
+#wtsall is the weight?
+HAPPY <- readRDS("HAPPY.rds")
+head(HAPPY)
+#Checks through the dataframe and looks for what satisfies the condition
+HAPPY[HAPPY == "IAP" | HAPPY == "DK" | HAPPY == "NA"] <- NA
+head(HAPPY)
+```
+
+2) 
+
+```{r}
+HAPPY.as(type)
+class(HAPPY)
+
+3
+#the levels inside of the factor remain when extracted
+
+HAPPY[HAPPY$]
+
+#Use factor to assign levels
+#mutate factor, says to assign levels in following order
+
+sapply(HAPPY, class)
+
+#TODO why order factors in each column of a dataframe
+#can write out column name instead of for loop
+
+#the graphs are arbitrary
 
 ```

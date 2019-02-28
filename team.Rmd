@@ -1,0 +1,129 @@
+---
+title: "team"
+author: "cyber-atlas, btski"
+date: "February 27, 2019"
+output: html_document
+---
+
+```{r}
+HAPPY <- readRDS("HAPPY.rds")
+#head(HAPPY)
+
+library("ggplot2")
+library("dplyr")
+```
+
+Answer each of the following questions using R code to get an answer. Write a separate code chunk to manipulate each variable. Once all the data manipulation is done, show the values in a barchart or histogram and comment on the plot. Use ggplot2 to create the plots.
+
+1. Data cleaning: the values “IAP”, “DK” and “NA” all encode missing values. Replace all of these instances by the value NA.
+```{r}
+HAPPY[HAPPY=="IAP"|HAPPY=="DK"|HAPPY=="NA"] <- NA
+#head(HAPPY)
+```
+
+2. Check the type of the variable and cast into the right type (factor variable for categorical variables). For age, change “89 OR OLDER” to 89 and assume the variable should be numeric. (Hint: see ?as.character and ?as.numeric)
+```{r}
+HAPPY$AGE[HAPPY$AGE=="89 OR OLDER"] <- 89
+HAPPY <- transform(HAPPY, AGE = as.numeric(AGE))
+
+HAPPY <- HAPPY %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate_if(~ is.integer(.) | is.double(.), as.numeric)
+#head(HAPPY)
+```
+
+3. Bring all levels of factors into a sensible order. For marital you could e.g. order the levels according to average age.
+```{r}
+HAPPY <- HAPPY %>%
+  mutate(HAPPY = factor(HAPPY, c("NOT TOO HAPPY", "PRETTY HAPPY", "VERY HAPPY"))) %>%
+  mutate(DEGREE = factor(DEGREE, c("LT HIGH SCHOOL", "HIGH SCHOOL", "JUNIOR COLLEGE", "BACHELOR", "GRADUATE" ))) %>%
+  mutate(SEX = factor(SEX, c("FEMALE", "MALE"))) %>%
+  mutate(FINRELA = factor(FINRELA, c("FAR BELOW AVERAGE", "BELOW AVERAGE", "AVERAGE", "ABOVE AVERAGE", "FAR ABOVE AVERAGE"))) %>%
+  mutate(HEALTH = factor(HEALTH, c("POOR", "FAIR", "GOOD", "EXCELLENT"))) %>%
+  mutate(PARTYID = factor(PARTYID, c("STRONG REPUBLICAN", "NOT STR REPUBLICAN", "IND,NEAR REP", "INDEPENDENT", "IND,NEAR DEM", "NOT STR DEMOCRAT", "STRONG DEMOCRAT", "OTHER PARTY"))) %>%
+  mutate(POLVIEWS = factor(POLVIEWS, c("EXTRMLY CONSERVATIVE", "SLGHTLY CONSERVATIVE", "CONSERVATIVE", "MODERATE", "LIBERAL", "SLIGHTLY LIBERAL", "EXTREMELY LIBERAL")))
+
+#MARITAL column has no obvious order
+#sort by average age of aggregated/grouped MARITAL value
+subset_marital_by_age <- aggregate(AGE ~ MARITAL, data = HAPPY, mean) %>%
+  arrange(AGE)
+HAPPY <- mutate(HAPPY, MARITAL = factor(MARITAL, as.vector(subset_marital_by_age$MARITAL)))
+#sapply(HAPPY, levels)
+```
+
+```{r}
+for (column_index in 1:ncol(HAPPY)) {
+  loop_subset <- HAPPY[, column_index]
+  loop_subset <- loop_subset[!is.na(loop_subset)] #ignore NA values
+  column_name <- names(HAPPY)[column_index]
+  if (is.numeric(HAPPY[1, column_index])) {
+    bw <- 2 * IQR(loop_subset) / length(loop_subset)^(1/3) #calculate ideal binwidth following Freedman-Diaconis rule
+    #multiply binwidth by two to improve visual
+    plot <- ggplot(HAPPY, aes_string(x=column_name)) + 
+      geom_histogram(binwidth = bw*2) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      xlab(column_name)
+  }
+  else {
+    subset_df = data.frame(loop_subset)
+    plot <- ggplot(subset_df, aes(x=subset_df[,1], na.rm = TRUE)) + 
+      geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+      xlab(column_name)
+  }
+  print(plot)
+}
+```
+
+
+Use ggplot2 to create the plots. Your exploration should make use all elements of the grammar of graphics: mappings (color, fill, and size at least), different geoms (4 at least), scales, coordinates (eg coord_flip), facet, and theme (eg setting axis labels and title). For each investigation, create an appropriate visualization and write a paragraph to describe it.
+
+1. Investigate the distributions of 2 different variables.
+```{r}
+#AGE distribution
+age_subset <- HAPPY$AGE
+age_subset <- age_subset[!is.na(age_subset)]
+bw <- 2 * IQR(age_subset) / length(age_subset)^(1/3) #identical binwidth calculation used previously
+plot1a <- ggplot(HAPPY, aes(x=AGE)) + 
+  geom_histogram(binwidth = bw*2, color="black", fill="white") + xlab("AGE") +
+  theme(legend.position = "none") +
+  scale_x_continuous(breaks=seq(15, 100, 5))
+
+print(plot1a)
+```
+
+```{r}
+#WTSSALL distribution
+plot2a <- ggplot(HAPPY, aes(x=WTSSALL)) + 
+  geom_density() + xlab("WTSSALL") + scale_y_sqrt() 
+
+print(plot2a)
+```
+
+
+2. Investigate the relationship between happiness and three other variables in the data.
+```{r}
+#Marital status and happiness
+subset_happy_marriage <- HAPPY %>% select(HAPPY, MARITAL) %>% drop_na() 
+plot1b <- ggplot(subset_happy_marriage, aes(x=MARITAL, fill=HAPPY)) + 
+  geom_bar() + ylab("Count") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
+  facet_wrap(~HAPPY) + 
+  scale_fill_manual(values = c("skyblue", "royalblue", "navy"), name = "Happiness")
+
+#Age and happiness
+subset_happy_age <- HAPPY %>% select(HAPPY, AGE) %>% drop_na() #%>% filter(AGE <= 30)
+plot2b <- ggplot(subset_happy_age, aes(x=HAPPY, y=AGE)) + 
+  geom_point(alpha=0.05, position="jitter", aes(color=HAPPY), size=1) + geom_boxplot(alpha=0) +
+  theme(legend.position = "none")
+
+#Education and happiness
+subset_happy_education <- HAPPY %>% select(HAPPY, DEGREE) %>% drop_na() 
+plot3b <- ggplot(subset_happy_education, aes(x=DEGREE, fill=HAPPY)) + 
+  geom_bar(position = "fill") + ylab("Proportion") + coord_flip()
+
+print(plot1b)
+print(plot2b)
+print(plot3b)
+```
+
+3. What do you learn from the data set? Write one or two paragraphs to describe.
+
