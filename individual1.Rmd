@@ -7,36 +7,64 @@ output: html_document
 
 1)
 ```{r}
+library("ggplot2") 
+library("dplyr")
+
 #data(happy, package="productplots")
 #head(happy)
 
 #wtsall is the weight?
 HAPPY <- readRDS("HAPPY.rds")
-head(HAPPY)
+#head(HAPPY)
 #Checks through the dataframe and looks for what satisfies the condition
 HAPPY[HAPPY == "IAP" | HAPPY == "DK" | HAPPY == "NA"] <- NA
 head(HAPPY)
-```
-
+``` 
 2) 
 
 ```{r}
-HAPPY.as(type)
 class(HAPPY)
+sapply(HAPPY, class)
 
-3
-#the levels inside of the factor remain when extracted
+#?as.numeric
+#?as.character
 
-HAPPY[HAPPY$]
+#Sets all ages 89+ to 89 and saves as numeric
+HAPPY$AGE[HAPPY$AGE == '89 OR OLDER'] <- 89
+HAPPY$AGE <- as.numeric(HAPPY$AGE)
+#str(HAPPY)
+
 
 #Use factor to assign levels
+HAPPY <- HAPPY %>% mutate(HAPPY = factor(HAPPY, levels = c('NOT TOO HAPPY', 'PRETTY HAPPY', 'VERY HAPPY'))) 
+HAPPY <- HAPPY %>% mutate(HAPPY = factor(SEX, levels = c("Female", "MALE")))
+#Marital order levels according to avg age
+#can't have non existant age
+HAPPY <- na.omit(HAPPY)
+maritalVector <- aggregate(AGE ~ MARITAL, data=HAPPY, mean) %>% arrange(AGE)
+maritalVector <- as.vector(maritalVector$MARITAL)
+HAPPY <- HAPPY %>% mutate(HAPPY = factor(MARITAL, maritalVector))
+
+HAPPY <- HAPPY %>% mutate(HAPPY = factor(DEGREE, levels = c("LT HIGH SCHOOL", "HIGH SCHOOL", "JUNIOR COLLEGE","BACHELOR","GRADUATE")))
+HAPPY <- HAPPY %>% mutate(HAPPY = factor(FINRELA, levels = c("FAR BELOW AVERAGE", "BELOW AVERAGE", "AVERAGE", "ABOVE AVERAGE", "FAR ABOVE AVERAGE"))) 
+HAPPY <- HAPPY %>% mutate(HAPPY = factor(HEALTH, levels = c("POOR", "FAIR", "GOOD", "EXCELLENT")))
+HAPPY <- HAPPY %>% mutate(HAPPY = factor(PARTYID, levels = c("STRONG DEMOCRAT", "NOT STR DEMOCRAT", "IND,NEAR DEM", "INDEPENDENT", "IND,NEAR REPUBLICAN", "NOT STR REPUBLICAN", "OTHER PARTY")))
+HAPPY <- HAPPY %>% mutate(HAPPY = factor(POLVIEWS, levels = c("EXTREMELY LIBERAL",  "LIBERAL", "SLIGHTLY LIBERAL","MODERATE",  "SLIGHTLY CONSERVATIVE","CONSERVATIVE", "EXTRMLY CONSERVATIVE")))
+
+
 #mutate factor, says to assign levels in following order
 
-sapply(HAPPY, class)
+#sapply(HAPPY, class)
 
 #TODO why order factors in each column of a dataframe
 #can write out column name instead of for loop
 
 #the graphs are arbitrary
+
+```
+
+2)
+```{r}
+
 
 ```
