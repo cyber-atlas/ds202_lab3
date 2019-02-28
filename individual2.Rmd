@@ -43,6 +43,10 @@ HAPPY <- HAPPY %>%
   mutate(PARTYID = factor(PARTYID, c("STRONG REPUBLICAN", "NOT STR REPUBLICAN", "IND,NEAR REP", "INDEPENDENT", "IND,NEAR DEM", "NOT STR DEMOCRAT", "STRONG DEMOCRAT", "OTHER PARTY"))) %>%
   mutate(POLVIEWS = factor(POLVIEWS, c("EXTRMLY CONSERVATIVE", "SLGHTLY CONSERVATIVE", "CONSERVATIVE", "MODERATE", "LIBERAL", "SLIGHTLY LIBERAL", "EXTREMELY LIBERAL")))
 
+HAPPY
+
+sapply(HAPPY, class)
+
 #MARITAL column has no obvious order
 #sort by average age of aggregated/grouped MARITAL value
 subset <- aggregate(AGE ~ MARITAL, data = HAPPY, mean) %>%

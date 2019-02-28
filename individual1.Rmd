@@ -24,4 +24,19 @@ head(HAPPY)
 HAPPY.as(type)
 class(HAPPY)
 
+3
+#the levels inside of the factor remain when extracted
+
+HAPPY[HAPPY$]
+
+#Use factor to assign levels
+#mutate factor, says to assign levels in following order
+
+sapply(HAPPY, class)
+
+#TODO why order factors in each column of a dataframe
+#can write out column name instead of for loop
+
+#the graphs are arbitrary
+
 ```
