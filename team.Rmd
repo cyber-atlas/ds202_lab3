@@ -93,7 +93,9 @@ plot1a <- ggplot(HAPPY, aes(x=AGE)) +
 
 print(plot1a)
 ```
-
+<br />
+Age distribution is skewed right. The youngest age bin, containing individuals just over 15 years of age, has the lowest count. Individuals in early 30s were most frequently observed. A near linear depreciation of counted age exists from the maximum (age 30) to a local minimum count (age 85+).
+<br />
 ```{r}
 #WTSSALL distribution
 plot2a <- ggplot(HAPPY, aes(x=WTSSALL)) + 
@@ -101,7 +103,9 @@ plot2a <- ggplot(HAPPY, aes(x=WTSSALL)) +
 
 print(plot2a)
 ```
-
+<br />
+The WTSSALL variable is heavily skewed right In order to differentiate low density values, a square root treatment was applied to the y-axis. At small WTSSALL values, two large peaks of similar density were observed. The density signal quickly became near zero for larger WTSSALL values.
+<br /><br />
 
 2. Investigate the relationship between happiness and three other variables in the data.
 ```{r}
@@ -115,6 +119,12 @@ plot1b <- ggplot(subset_happy_marriage, aes(x=MARITAL, fill=HAPPY)) +
   facet_wrap(~HAPPY) + 
   scale_fill_manual(values = c("skyblue", "royalblue", "navy"), name = "Happiness")
 
+print(plot1b)
+```
+<br />
+Most individuals observed identified as pretty happy. Happiest people were either never married or married.
+<br />
+```{r}
 #Age and happiness
 #subset_happy_age <- HAPPY %>% select(HAPPY, AGE) %>% drop_na() #%>% filter(AGE <= 30)
 subset_happy_age <- HAPPY %>% select(HAPPY, AGE)
@@ -123,6 +133,12 @@ plot2b <- ggplot(subset_happy_age, aes(x=HAPPY, y=AGE)) +
   geom_point(alpha=0.05, position="jitter", aes(color=HAPPY), size=1) + geom_boxplot(alpha=0) +
   theme(legend.position = "none")
 
+print(plot2b)
+```
+<br />
+Happiness seems mostly independent of age. Median age varied little with happiness. All levels of happiness were observed for full age distribution (youngest to oldest represented).
+<br />
+```{r}
 #Education and happiness
 #subset_happy_education <- HAPPY %>% select(HAPPY, DEGREE) %>% drop_na() 
 subset_happy_education <- HAPPY %>% select(HAPPY, DEGREE)
@@ -130,10 +146,15 @@ subset_happy_education <- na.omit(subset_happy_education)
 plot3b <- ggplot(subset_happy_education, aes(x=DEGREE, fill=HAPPY)) + 
   geom_bar(position = "fill") + ylab("Proportion") + coord_flip()
 
-print(plot1b)
-print(plot2b)
 print(plot3b)
 ```
+<br />
+There is a direct, positive relationship between happiness and amount of education. Happiness is greatest for most educated individuals.
+<br />
 
 3. What do you learn from the data set? Write one or two paragraphs to describe.
+<br />
 
+The happiness survey focused on an expected age distribution, although there was a minimum age restriction. Ages sampled were most frequent at adult prime (around age 30), and decreased in correspondence to human mortality. Happiness corresponded marginally with age. 
+
+The majority of individuals sampled were identified as "pretty happy". People are most happy when either single or married. There is a direct, positive relationship between happiness and amount of education.
