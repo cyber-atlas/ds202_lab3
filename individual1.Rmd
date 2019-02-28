@@ -7,32 +7,54 @@ output: html_document
 
 1)
 ```{r}
+library("ggplot2") 
+library("dplyr")
+
 #data(happy, package="productplots")
 #head(happy)
 
 #wtsall is the weight?
 HAPPY <- readRDS("HAPPY.rds")
-head(HAPPY)
+#head(HAPPY)
 #Checks through the dataframe and looks for what satisfies the condition
 HAPPY[HAPPY == "IAP" | HAPPY == "DK" | HAPPY == "NA"] <- NA
 head(HAPPY)
-```
-
+``` 
 2) 
 
 ```{r}
-HAPPY.as(type)
 class(HAPPY)
+sapply(HAPPY, class)
 
-3
-#the levels inside of the factor remain when extracted
+#?as.numeric
+#?as.character
 
-HAPPY[HAPPY$]
+#Sets all ages 89+ to 89 and saves as numeric
+HAPPY$AGE[HAPPY$AGE == '89 OR OLDER'] <- 89
+HAPPY$AGE <- as.numeric(HAPPY$AGE)
+#str(HAPPY)
+
 
 #Use factor to assign levels
+HAPPY <- HAPPY %>% mutate(HAPPY = factor(HAPPY, levels = c('NOT TOO HAPPY', 'PRETTY HAPPY', 'VERY HAPPY'))) 
+HAPPY <- HAPPY %>% mutate(SEX = factor(SEX, levels = c("FEMALE", "MALE")))
+#Marital order levels according to avg age
+#can't have non existant age
+HAPPY <- na.omit(HAPPY)
+maritalVector <- aggregate(AGE ~ MARITAL, data=HAPPY, mean) %>% arrange(AGE)
+maritalVector <- as.vector(maritalVector$MARITAL)
+HAPPY <- HAPPY %>% mutate(MARITAL = factor(MARITAL, maritalVector))
+
+HAPPY <- HAPPY %>% mutate(DEGREE = factor(DEGREE, levels = c("LT HIGH SCHOOL", "HIGH SCHOOL", "JUNIOR COLLEGE","BACHELOR","GRADUATE")))
+HAPPY <- HAPPY %>% mutate(FINRELA = factor(FINRELA, levels = c("FAR BELOW AVERAGE", "BELOW AVERAGE", "AVERAGE", "ABOVE AVERAGE", "FAR ABOVE AVERAGE"))) 
+HAPPY <- HAPPY %>% mutate(HEALTH = factor(HEALTH, levels = c("POOR", "FAIR", "GOOD", "EXCELLENT")))
+HAPPY <- HAPPY %>% mutate(PARTYID = factor(PARTYID, levels = c("STRONG DEMOCRAT", "NOT STR DEMOCRAT", "IND,NEAR DEM", "INDEPENDENT", "IND,NEAR REPUBLICAN", "NOT STR REPUBLICAN", "OTHER PARTY")))
+HAPPY <- HAPPY %>% mutate(POLVIEWS = factor(POLVIEWS, levels = c("EXTREMELY LIBERAL",  "LIBERAL", "SLIGHTLY LIBERAL","MODERATE",  "SLIGHTLY CONSERVATIVE","CONSERVATIVE", "EXTRMLY CONSERVATIVE")))
+
+
 #mutate factor, says to assign levels in following order
 
-sapply(HAPPY, class)
+#sapply(HAPPY, class)
 
 #TODO why order factors in each column of a dataframe
 #can write out column name instead of for loop
@@ -40,3 +62,39 @@ sapply(HAPPY, class)
 #the graphs are arbitrary
 
 ```
+
+
+1
+```{r}
+
+
+ggplot(data= HAPPY, aes(x=AGE))+
+  geom_histogram(aes(color="red"), binwidth = 2)
+
+```
+
+
+Vased on looking at the distribution of the ages, we can see that a majority of the respondants are young (in 20s and 30s)
+
+2. 
+```{r}
+
+ggplot(data = HAPPY, aes(x = HAPPY)) +
+  geom_bar(aes(color='red', fill=SEX)) + 
+  facet_wrap(HAPPY$MARITAL)
+
+```
+
+Based on the graph it shows that as a whole females are happier than males on average. Both men and women are pretty happy or happy during marriage. Seperated and widowed people are the least happy. 
+
+
+
+```{r}
+
+ggplot(data = HAPPY, aes(x = HAPPY)) +
+  geom_bar(aes(fill=SEX)) + 
+  facet_wrap(HAPPY$FINRELA)
+
+```
+
+
